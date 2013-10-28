@@ -1,5 +1,5 @@
 # Select from the following
-all:adxl345-simple
+all:other
 
 # all target
 other:compile-other upload
