@@ -103,10 +103,10 @@ int main(int argc, char* argv[])
 #if 1
 	__s16 x,z,y;
 	for (;;) {
-	x = adxl_read_byte(fd, DATAX0);
-	y = adxl_read_byte(fd, DATAY0);
-	z = adxl_read_byte(fd, DATAZ0);
-	printf("x=%5d y=%5d z=%5d\n", x,y,z);
+	//x = adxl_read_byte(fd, DATAX0);
+	//y = adxl_read_byte(fd, DATAY0);
+	//z = adxl_read_byte(fd, DATAZ0);
+	//printf("x=%5d y=%5d z=%5d\n", x,y,z);
 	adxl_read_six_byte(fd, DATAX0,&pos);
 	printf("x=%5d y=%5d z=%5d\n", pos.x,pos.y,pos.z);
 	printf("\n\n");
@@ -212,12 +212,12 @@ int adxl_read_six_byte(int fd, __u8 reg,struct Pos *pos)
 	struct i2c_smbus_ioctl_data args;
 	int ret;
 	int len=6;//读取字节长度
-#if 1
-	data.byte=20;
+#if 0
+
 	args.read_write = I2C_SMBUS_WRITE;     //写
-	args.command = 0;     //地址
+	args.command = 6;     //地址
 	args.size = I2C_SMBUS_BYTE;     //大小一比特
-	args.data = &data;     //没有数据
+	args.data = NULL;     //没有数据
 	ret = ioctl(fd, I2C_SMBUS, &args);
 	if (ret<0) {
 		printf("r<0 r=%d\n", ret);
@@ -226,6 +226,7 @@ int adxl_read_six_byte(int fd, __u8 reg,struct Pos *pos)
 #endif
 #if 1
 	//读
+	data.byte=len; //读取的长度从这里传进去
 	args.read_write = I2C_SMBUS_READ;     //读
 	args.command = reg;     //开始地址
 	args.size = I2C_SMBUS_I2C_BLOCK_DATA;     //2字节
