@@ -14,6 +14,8 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <unistd.h>
+#include <string.h>
+
 #include "adxl345.h"
 //切换 EEPROM 则1 其他则测试桩
 //切换 DEV_CLASS 指定三种测试方案
@@ -39,11 +41,20 @@
 			#label " function is required. Program halted.\n\n"); \
 		return 1; } \
 	} while(0);
+
+struct Pos{
+	short x;
+	short y;
+	short z;
+};
+
 __u8 adxl_read(int fd, __u8 reg);
 int adxl_write(int fd, __u8 reg, __u8 val);
 __u16 adxl_read_byte(int fd, __u8 reg);
+int adxl_read_six_byte(int fd, __u8 reg,struct Pos *pos);
 int print_regs(int fd, int from, int to);
 int guixyz(char name, int val);
+
 // 主函数
 int main(int argc, char* argv[])
 {
@@ -51,6 +62,7 @@ int main(int argc, char* argv[])
 	int ret = 0;
 	int funcs;
 	int i;
+	struct Pos pos;
 	// 1  打开 ,从设备打开
 	if (argc==2) {
 		fd = open(argv[1], O_RDWR);
@@ -77,7 +89,7 @@ int main(int argc, char* argv[])
 	}
 	printf("器件ID[0x%X]=0x%X\n", REG_DEVID, ret);
 #endif
-#if 1
+#if 0
 	//其他寄存器测试
 	printf("所有寄存器读取测试:\n");
 	print_regs(fd, 0x1E, 0x39);
@@ -94,12 +106,11 @@ int main(int argc, char* argv[])
 	x = adxl_read_byte(fd, DATAX0);
 	y = adxl_read_byte(fd, DATAY0);
 	z = adxl_read_byte(fd, DATAZ0);
-	guixyz('x', x);
-	guixyz('y', y);
-	guixyz('z', z);
-	printf("\f");
-	//printf("x=%5d y=%5d z=%5d\n", x,y,z);
-	usleep(100*1000);
+	printf("x=%5d y=%5d z=%5d\n", x,y,z);
+	adxl_read_six_byte(fd, DATAX0,&pos);
+	printf("x=%5d y=%5d z=%5d\n", pos.x,pos.y,pos.z);
+	printf("\n\n");
+	usleep(1000*1000);
 	}
 #endif
 
@@ -195,7 +206,47 @@ __u8 adxl_read(int fd, __u8 reg)
 	}
 	return data.byte;
 }
-__u16 adxl_read_byte(int fd, __u8 reg)
+int adxl_read_six_byte(int fd, __u8 reg,struct Pos *pos)
+{
+	union i2c_smbus_data data;
+	struct i2c_smbus_ioctl_data args;
+	int ret;
+	int len=6;//读取字节长度
+#if 1
+	data.byte=20;
+	args.read_write = I2C_SMBUS_WRITE;     //写
+	args.command = 0;     //地址
+	args.size = I2C_SMBUS_BYTE;     //大小一比特
+	args.data = &data;     //没有数据
+	ret = ioctl(fd, I2C_SMBUS, &args);
+	if (ret<0) {
+		printf("r<0 r=%d\n", ret);
+		perror("ioctl");
+	}
+#endif
+#if 1
+	//读
+	args.read_write = I2C_SMBUS_READ;     //读
+	args.command = reg;     //开始地址
+	args.size = I2C_SMBUS_I2C_BLOCK_DATA;     //2字节
+	args.data = &data;     //保存数据
+	ret = ioctl(fd, I2C_SMBUS, &args);
+	if (ret!=0) {     //非零错误
+		printf("读取ioctl错误");
+		return -1;
+	}
+#endif
+#if 0
+	int i;
+	for (i = 0; i<7; i++) {
+		printf(" %02X ", data.block[i]);
+		fflush(stdout);
+	}
+#endif
+	memcpy(pos,&data.block[1],len);
+	return 0;
+}
+unsigned short adxl_read_byte(int fd, __u8 reg)
 {
 	union i2c_smbus_data data;
 	struct i2c_smbus_ioctl_data args;
