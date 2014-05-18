@@ -1,6 +1,6 @@
 # Select from the following
-all:adxl345-dbg
-
+all:adxl345-hello
+CC=/home/zodiac1111/Mysoft/gcc-linaro-arm-linux-gnueabihf-4.8-2014.03_linux/bin/arm-linux-gnueabihf-gcc
 # all target
 other:compile-other upload
 eeporm:compile-eeprom upload
@@ -11,22 +11,22 @@ adxl345-simple:compile-adxl345-simple upload
 
 
 compile-adxl345-helloworld:
-	arm-linux-gcc adxl345-helloworld.c -o app -Wall
+	${CC} adxl345-helloworld.c -o app -Wall
 
 compile-adxl345-simple:
-	arm-linux-gcc adxl345-simplest-use.c -o app -Wall
+	${CC} adxl345-simplest-use.c -o app -Wall
 
 compile-adxl345-dbg:
-	arm-linux-gcc i2c-adxl345-dbg.c -o app -Wall
+	${CC} i2c-adxl345-dbg.c -o app -Wall
 
 compile-adxl345:
-	arm-linux-gcc i2c-adxl345.c -o app -Wall
+	${CC} i2c-adxl345.c -o app -Wall
 
 compile-eeprom:
-	arm-linux-gcc i2c-eeprom.c -o app -Wall
+	${CC} i2c-eeprom.c -o app -Wall
 
 compile-other:
-	arm-linux-gcc i2c-other.c -o app -Wall
+	${CC} i2c-other.c -o app -Wall
 
 #mini2440 ftp upload
 upload:

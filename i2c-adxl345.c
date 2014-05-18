@@ -30,7 +30,7 @@
 #define DEV "/dev/i2c/1"
 #elif DEV_CLASS==3
 #define ADDRESS 0x53 // adxl地址证实
-#define DEV "/dev/i2c/0"
+#define DEV "/dev/i2c-2"
 #endif
 
 #define CHECK_I2C_FUNC( var, label ) \

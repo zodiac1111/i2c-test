@@ -11,7 +11,7 @@
 #include <linux/i2c-dev.h>
 #include <linux/i2c.h>
 #define ADDRESS 0x53 		// adxl345地址
-#define DEV "/dev/i2c/0" 	//设配文件,与原先的eeprom一样,通过地址区分
+#define DEV "/dev/i2c-1" 	//设配文件,与原先的eeprom一样,通过地址区分
 #define DEVID 	0x00 		// adxl345器件id的寄存器地址,见数据手册
 unsigned char adxl_read(int fd, unsigned char reg);
 int main(int argc, char* argv[])
